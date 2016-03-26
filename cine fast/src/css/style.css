@@ -2,3 +2,22 @@
 .destaque {
   background-color: #CD0000;
 }
+.elenco {
+	position: relative;
+	width: 100%;
+	height: auto;
+	z-index: 999;
+}
+.diretor {
+	position: relative;
+	width: 100%;
+	height: auto;
+	z-index: 999;
+}
+.corpoForm {
+	position: relative;
+	width: 100%;
+	height: auto;
+	z-index: 999;
+
+}
