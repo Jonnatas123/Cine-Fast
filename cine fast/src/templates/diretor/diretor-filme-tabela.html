@@ -1,0 +1,22 @@
+<div>
+  <h2><span ng-hide="listandoDiretoresFlag">Lista de Diretores</span>
+    <span ng-show="listandoDiretoresFlag">Carregando Diretores
+      <!--<img src="../img/ajax-loader.gif"/>-->
+    </span>
+  </h2>
+  <table class="table table-striped table-hover" ng-hide="listandoDiretoresFlag">
+    <thead>
+    <tr>
+      <th></th>
+      <th>Id</th>
+      <th>Nome</th>
+      <th>Foto</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="dir in diretores" diretor-tabela-linha diretor="dir"
+        deletar-diretor-listener="removerLinha($index)"></tr>
+
+    </tbody>
+  </table>
+</div>

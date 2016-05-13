@@ -21,3 +21,22 @@
 	z-index: 999;
 
 }
+
+.estrelas input[type=radio] {
+  display: none;
+}
+.estrelas label i.fa:before {
+  content:'\f005';
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+  color: #FC0;
+}
+.estrelas input[type=radio]:checked ~ label i.fa:before {
+  color: #CCC;
+}
+
+.borda-red {
+	border-color: red;
+}

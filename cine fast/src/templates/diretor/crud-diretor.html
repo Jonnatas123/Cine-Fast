@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Diretor</title>
+
+    <meta charset="utf-8">
+
+	<script type="text/javascript" src="../../angular/angular.min.js"></script>
+	<script src="../../js/jquery.min.js"></script>
+	<script type="text/javascript" src="../../js/diretor/diretor-filme-app.js"></script>
+	<script type="text/javascript" src="../../js/diretor/diretor-filme-components.js"></script>
+	<script type="text/javascript" src="../../js/diretor/diretor-filme-servicos-real.js"></script>
+
+	<link rel="icon" href="../../img/play-icon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="../../img/play-icon.png" type="image/x-icon" />
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/style.css" rel="stylesheet">
+    
+    <style type="text/css">
+    	.jombotron {
+    		width: 400px;
+    		height: auto;
+    		margin-right: auto;
+    		margin-left: auto;
+    		margin-top: 5px;
+    	}
+    	.carregando {
+    		visibility: hidden;
+    		width: 30px;
+    		height: 30px;
+    	}
+        #myImg {
+           position: relative;
+           width: 200px;
+           height: 200px;
+           margin: auto; 
+        }
+        
+    </style>
+    <script type="text/javascript">
+        $(function() {
+            $('#menu').load('../detalhes/detalhes.html');
+        });
+    </script>
+</head>
+<body>
+
+<div class="container-fluid" ng-app="diretorFilmeApp" ng-controller="myCtrl">
+    <div id="menu"></div>
+	<diretor-form salvar-diretor-filme-listener="adicionarDiretor(diretor)">
+	</diretor-form>
+
+    <hr>
+      <diretor-tabela diretores="diretores"></diretor-tabela>
+
+</body>
+</html>
+
+<script type="text/javascript">
+    function abrirFoto(id) {
+        alert(id);
+    }
+    $(document).ready(function () {
+       
+    });
+        
+
+</script>

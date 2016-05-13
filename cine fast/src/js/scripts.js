@@ -1,5 +1,7 @@
 // Empty JS for your own code to be here
-
+$(function(){
+	$('#menu').load('templates/detalhes/detalhes.html');
+});
 function Acervo() {
 	this.list = [];
 }
@@ -28,8 +30,18 @@ function AcervoCartaz() {
 
 AcervoCartaz.prototype = new Acervo();
 
-function Filme() {
+function AcervoComentarios() {
+	Acervo.call(this);
+}
 
+AcervoComentarios.prototype = new Acervo();
+
+var filmesComentarios = new AcervoComentarios();
+var filmesLancamento = new AcervoLancamento();
+var filmesSinopse = new AcervoSinopse();
+var filmesEmCartaz = new AcervoCartaz();
+
+function Filme() {
 	this.titulo = '';
 	this.descricao = '';
 	this.data_lancamento = '';
@@ -85,41 +97,44 @@ function buscaFilmesAjax() {
   	});
 }
 
-function enviarComentario(comentario, f) {
+function enviarComentario(comentario, f, id) {
 	filme = filmesSinopse.list[f];
 	$.ajax(
 		{
 			type: "GET",
 			url: "http://127.0.0.1:8000/cineFast/inserir_comentario", 
-			data: {'filme': filme.titulo, 'comentario': comentario},
+			data: {'filme': filme.titulo, 'comentario': comentario, 'id_comentario': id},
+			success: function(data) {
+				retornarComentarios($('#coment').attr('data-filme'));
+			},
   	});
 }
 
 function retornarComentarios(pos){
 	filme = filmesSinopse.list[pos];
-	dados = '';	$.ajax({
+	dados = '';	
+	$.ajax({
 		type: "GET",
 		url: "http://127.0.0.1:8000/cineFast/listar_comentario",
 		data: 'filme='+filme.titulo,
 		success: function(data) {
-			if(data != undefined){
-				for(i = 0; i < data.length; i++){
-					c = new Comentario();
-					c.addJSON(data[i]);
-					d = moment(new Date(c.data)).format('DD-MM-YYYY HH:MM:SS');
-					$('.comentarios').append('<p><span>Data: '+d+'</span></p>');
-					$('.comentarios').append('<p><span>'+c.texto+'</span></p>');
-					$('.comentarios').append('<hr>');
-				}
-			}
+				montaComentarios(data);
 		} 
 			
   	});
 }
 
-var filmesLancamento = new AcervoLancamento();
-var filmesSinopse = new AcervoSinopse();
-var filmesEmCartaz = new AcervoCartaz();
+function removerComentario(id) {
+	$.ajax(
+		{
+			type: "GET",
+			url: "http://127.0.0.1:8000/cineFast/remover_comentario", 
+			data: {'id_comentario': id},
+			success: function(data) {
+				retornarComentarios($('#coment').attr('data-filme'));
+			},
+  	});
+}
 
 function descompactaJSON(dados) {
 	var tamanho = dados.length;
@@ -185,6 +200,8 @@ function montaDetalhes(pos) {
 	$('.cabeca').html('');
 	$('.comentarios').html('');
 	$('.elenco').html('');
+	$('.diretor').html('');
+	$('#erroComentario').hide();
 	corpo = '<center><h4>'+filme.titulo+'</h4></center>';
 	corpo += '<center><img id="sin-img-3" src="'+filme.caminho_imagem+'" />';
 	corpo += '</center><br /><h4>Descrição</h4>';
@@ -211,7 +228,6 @@ function montaDetalhes(pos) {
 			corpoDiretor += '<p><span>'+diretor.nome+'</span><p/>';
 			corpoDiretor += '</div>'
 		}
-		corpoDiretor += '</div>';
 	}
 	
 	$('.cabeca').append(corpo);
@@ -222,25 +238,50 @@ function montaDetalhes(pos) {
 
 }
 $(document).ready(function(){
+
 	buscaFilmesAjax();
 	preparaPagina();
 	
-	$('#boxMais-3').on('click', function() {
+	$('.btnMais').on('click', function() {
 		$('#coment').attr('data-filme', $(this).attr('data-filme'));
-		comentarios = retornarComentarios($(this).attr('data-filme'));
+		retornarComentarios($(this).attr('data-filme'));
 		montaDetalhes($(this).attr('data-filme'));
 	});
 
 	$('#btn-coment').on('click', function(){
 		comentario = $('#coment').val();
 		if(comentario.length <= 0) {
-			alert('erro');
+			$('#erroComentario').show();
+			$('#coment').addClass('borda-red');
 		}else {
-			enviarComentario(comentario, $('#coment').attr('data-filme'));
-			$('.comentarios').append(comentario+'<br /><hr>');
+			id = $('#btn-coment').attr('data-coment');
+			enviarComentario(comentario, $('#coment').attr('data-filme'), id);
+			$('#erroComentario').hide();
+			$('#coment').removeClass('borda-red');
+			atualizaFormComent(undefined);
+
 		}
 		return false;
 	});
+
+	$('#btn-cancel').on('click', function(){
+		atualizaFormComent(undefined);
+	});
+
+	$("#boxMais-1").animatedModal({
+		modalTarget:'animatedModal',
+        animatedIn:'bounceIn',
+        animatedOut:'bounceOut',
+        color:'#FFFFFF'
+	});
+
+	$("#boxMais-2").animatedModal({
+		modalTarget:'animatedModal',
+        animatedIn:'bounceIn',
+        animatedOut:'bounceOut',
+        color:'#FFFFFF'
+	});
+
 	$("#boxMais-3").animatedModal({
 		modalTarget:'animatedModal',
         animatedIn:'bounceIn',
@@ -251,6 +292,7 @@ $(document).ready(function(){
 });
 
 function Comentario(){
+	this.id = 0;
 	this.texto = '';
 	this.data = '';
 	this.autor = '';
@@ -259,7 +301,9 @@ function Comentario(){
 Comentario.prototype = {
 	addJSON: function(obj){
 		if(obj != undefined) {
-			if(obj.hasOwnProperty('texto')){
+			if(obj.hasOwnProperty('id')){
+				this.id = obj['id'];
+			}if(obj.hasOwnProperty('texto')){
 				this.texto = obj['texto'];
 			}
 			if(obj.hasOwnProperty('data')){
@@ -269,5 +313,63 @@ Comentario.prototype = {
 				this.autor = obj['autor'];
 			}
 		}
+	},
+	getComentario: function(id){
+		for(i = 0; i < filmesComentarios.list.length; i++) {
+			c = filmesComentarios.list[i];
+			if(c.id === Number(id)) {
+				return c;
+			}
+		}
+		return null;
+	}
+}
+
+function atualizaFormComent(com) {
+	if(com != undefined){
+		$form = $('#comentario');
+		$form.find("textarea#coment").val(com.texto);
+		$form.find("textarea#coment").css('border-color', '#87CEFA');
+		$form.find("button#btn-coment").text("Atualizar");
+		$form.find("button#btn-cancel").css('display', 'inline');
+		$form.find("button#btn-coment").attr('data-coment', com.id);
+	}else {
+		$form = $('#comentario');
+		$form.find("textarea#coment").val("");
+		$form.find("textarea#coment").css('border-color', 'black');
+		$form.find("button#btn-coment").text("Comentar");
+		$form.find("button#btn-cancel").css('display', 'none');
+		$form.find("button#btn-coment").attr('data-coment', '0');
+	}
+}
+
+function montaComentarios(data) {
+	if(data != undefined){
+		$('.comentarios').html('');
+		filmesComentarios = new AcervoComentarios();
+		for(i = 0; i < data.length; i++){
+			c = new Comentario();
+			c.addJSON(data[i]);
+			d = moment(new Date(c.data)).format('DD-MM-YYYY HH:MM:SS');
+			$('.comentarios').append('<p><span>Data: '+d+'</span></p>');
+			$('.comentarios').append('<p><span>'+c.texto+'</span>');
+			$('.comentarios').append('<span><a class="editComent" href="#" data-coment="'+c.id+'">Editar</a></span>');
+			$('.comentarios').append('  <span><a class="removeComent" href="#" data-coment="'+c.id+'">Remover</a></span></p>');
+			$('.comentarios').append('<hr>');
+
+			filmesComentarios.adicionar(c);
+		}
+		$(document).ready(function(){
+			$('.editComent').on('click', function(){
+				idComent = $(this).attr('data-coment');
+				c = new Comentario().getComentario(idComent);
+				atualizaFormComent(c);
+			});
+
+			$('.removeComent').on('click', function(){
+				idComent = $(this).attr('data-coment');
+				removerComentario(idComent);
+			});
+		})
 	}
 }

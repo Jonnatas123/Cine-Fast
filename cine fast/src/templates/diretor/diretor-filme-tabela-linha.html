@@ -1,0 +1,39 @@
+
+<tr>
+  <td>
+    <button class="btn btn-primary btn-sm" ng-click="editarToggle()"><i class="glyphicon glyphicon-pencil"></i></button>
+
+  </td>
+  <td>{{diretor.id}}</td>
+  <td>
+    <span ng-hide="editandoFlag">{{diretor.nome}}</span>
+
+    <form ng-submit="editar()">
+      <span class="input-group" style="width: 300px;" ng-show="editandoFlag">
+        <input type="text" class="form-control" ng-model="diretorParaEdicao.nome">
+        <span class="input-group-btn">
+          <button class="btn btn-primary" type="submit"><i class="glyphicon glyphicon-save"></i></button>
+        </span>
+      </span>
+    </form>
+  </td>
+  <td>
+    <span ng-hide="editandoFlag" >
+      <button ng-click="abrirFoto()"><i class="glyphicon glyphicon-picture"></i></button>
+    </span>
+    <span ng-hide="!editandoFlag" >
+      <form action="#"  ng-submit="salvar(diretor)" ng-controller="myCtrl">
+        <span class="input-group-btn" style="float:left;">
+          <button class="btn btn-primary" ng-click="uploadFile()"><i class="glyphicon glyphicon-save"></i></button>
+        </span>
+        <input type="file" file-model="myFile" class="form-control" width="10px"></input>
+        
+      </form>
+    </span>  
+  </td>
+  <td>
+
+    <button class="btn btn-danger btn-sm" ng-click="deletar()"><i class="glyphicon glyphicon-trash"></i></button>
+  </td>
+</tr>
+https://youtu.be/hCTv-R3tR9c
